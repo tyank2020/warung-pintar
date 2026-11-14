@@ -7955,12 +7955,15 @@ i.pulse {
   margin-right: 2px;
 }
 
-/* ---------- Layar masuk: kolom ilustrasi ---------- */
-.auth-page:has(.auth-hero) {
-  grid-template-columns: minmax(0, 1.05fr) minmax(400px, 480px);
-  place-items: stretch;
-  padding: 0;
-  gap: 0;
+/* ---------- Layar masuk: kolom ilustrasi (hanya desktop lebar) ---------- */
+@media (min-width: 1024px) {
+  .auth-page:has(.auth-hero) {
+    grid-template-columns: minmax(0, 1.05fr) minmax(400px, 480px);
+    place-items: stretch;
+    padding: 0;
+    gap: 0;
+  }
+  .auth-hero { display: block; }
 }
 .auth-hero {
   display: none;
@@ -7971,9 +7974,6 @@ i.pulse {
     radial-gradient(90% 90% at 85% 12%, rgba(0, 166, 251, 0.22), transparent 55%),
     radial-gradient(80% 80% at 8% 90%, rgba(0, 100, 148, 0.35), transparent 60%),
     linear-gradient(160deg, #0d4166 0%, #063049 55%, #051923 100%);
-}
-@media (min-width: 1024px) {
-  .auth-hero { display: block; }
 }
 .auth-hero-inner {
   position: relative;
