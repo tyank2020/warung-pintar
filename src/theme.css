@@ -185,7 +185,7 @@
 .quick-card.voice {
   border-color: var(--palette-steel);
   background: linear-gradient(135deg, #3675f5, #245bdc);
-  color: #fff;
+  color: var(--palette-oxford-blue);
   box-shadow: 0 10px 24px rgba(47, 98, 232, 0.16);
 }
 
@@ -980,7 +980,8 @@
 
 .auth-hero {
   width: min(100%, 560px);
-  margin-inline: auto;
+  justify-self: stretch;
+  margin-right: 0;
   animation: wp-auth-hero-in 650ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
 }
 
@@ -988,6 +989,7 @@
   margin: 18px 0 14px;
   font-size: clamp(32px, 3.7vw, 48px);
   line-height: 1.08;
+  color: var(--palette-oxford-blue);
   text-wrap: balance;
 }
 
@@ -1051,6 +1053,61 @@
 
 .route-transition {
   animation: wp-route-enter 280ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .route-transition > * {
+    animation: wp-section-enter 360ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+  }
+
+  .route-transition > :nth-child(2) {
+    animation-delay: 50ms;
+  }
+
+  .route-transition > :nth-child(3) {
+    animation-delay: 100ms;
+  }
+
+  .route-transition > :nth-child(4) {
+    animation-delay: 150ms;
+  }
+
+  .route-transition > :nth-child(n + 5) {
+    animation-delay: 180ms;
+  }
+}
+
+@media (max-width: 700px) and (prefers-reduced-motion: no-preference) {
+  .route-transition > * {
+    animation-duration: 250ms;
+  }
+
+  .route-transition > :nth-child(2) {
+    animation-delay: 25ms;
+  }
+
+  .route-transition > :nth-child(3) {
+    animation-delay: 50ms;
+  }
+
+  .route-transition > :nth-child(4) {
+    animation-delay: 75ms;
+  }
+
+  .route-transition > :nth-child(n + 5) {
+    animation-delay: 100ms;
+  }
+}
+
+@keyframes wp-section-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes wp-auth-glow-drift {
@@ -1219,6 +1276,82 @@
   .consignment-metrics strong {
     overflow-wrap: anywhere;
     white-space: normal;
+  }
+}
+
+.auth-hero-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--palette-oxford-blue);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.auth-hero-brand .brand-mark {
+  width: 42px;
+  height: 44px;
+}
+
+.auth-hero-brand b {
+  color: var(--palette-steel);
+}
+
+.auth-hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(47, 98, 232, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+@media (min-width: 901px) and (max-width: 1140px) {
+  .sidebar {
+    width: 216px;
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  main {
+    margin-left: 216px;
+  }
+
+  main.sidebar-collapsed {
+    margin-left: 78px;
+  }
+
+  .content {
+    width: min(1020px, calc(100% - 40px));
+    padding-top: 32px;
+  }
+
+  header {
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+
+  .side-nav button {
+    gap: 9px;
+    padding-right: 9px;
+    padding-left: 9px;
+    font-size: 12px;
+  }
+
+  .help-card {
+    padding: 12px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 901px) {
+  .auth-card > .auth-brand {
+    display: none;
   }
 }
 

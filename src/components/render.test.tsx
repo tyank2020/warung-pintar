@@ -17,6 +17,7 @@ import { Reports } from "../pages/Reports"
 import { Settings } from "../pages/Settings"
 import { ProductSheet } from "../components/ProductSheet"
 import { StockCountSheet } from "../components/StockCountSheet"
+import { AuthScreen } from "../components/AuthScreen"
 
 const noop = () => {}
 
@@ -32,6 +33,15 @@ const SAMPLE_PRODUCT = {
 }
 
 describe("render halaman", () => {
+  it("menampilkan login dalam halaman awal bersama identitas warung", () => {
+    const html = renderToString(createElement(AuthProvider, null, createElement(AuthScreen)))
+
+    expect(html).toContain("Warung Anda,")
+    expect(html).toContain("ASISTEN CERDAS UNTUK WARUNG")
+    expect(html).toContain("Masuk ke warung")
+    expect(html).toContain("Buat akun")
+  })
+
   it("merender semua halaman tanpa error", () => {
     const pages = [
       createElement(Cashier, { onVoice: noop }),
