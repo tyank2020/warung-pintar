@@ -1,0 +1,40 @@
+name: Keep alive
+
+# Mencegah project Supabase gratis di-pause karena tidak ada aktivitas
+# selama ±7 hari, dan menjaga deploy Vercel tetap hangat sebelum demo.
+on:
+  schedule:
+    - cron: "30 22 * * *" # 05:30 WIB, setiap hari
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: https://osnktodmffgvxdohcjmh.supabase.co
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      APP_URL: https://warung-pintar-gamma.vercel.app
+    steps:
+      - name: Ping live app (Vercel)
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL")
+          echo "app $code"
+          if [ "$code" != "200" ]; then echo "::warning::Live app balas $code"; fi
+
+      - name: Ping Supabase REST (database aktif)
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            "$SUPABASE_URL/rest/v1/products?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY")
+          echo "rest $code"
+          if [ "$code" != "200" ]; then echo "::warning::Supabase REST balas $code"; fi
+
+      - name: Ping Edge Function (functions aktif)
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            "$SUPABASE_URL/functions/v1/seasonal-advisor" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            -H "Content-Type: application/json" -d "{}")
+          echo "functions $code (200 = AI jalan, 4xx/5xx dari function tetap menandakan function hidup)"
