@@ -407,11 +407,6 @@ export function Settings() {
             <button onClick={() => void saveAccount()} disabled={busyAccount || !accountChanged}>
               {busyAccount ? "Menyimpan…" : "Simpan perubahan akun"}
             </button>
-            {user?.email && (
-              <button onClick={() => void handleLogout()} disabled={busyAccount}>
-                Keluar dari akun
-              </button>
-            )}
           </div>
           {accountError && <div className="form-error settings-error">{accountError}</div>}
         </section>
