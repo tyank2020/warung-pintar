@@ -83,6 +83,53 @@ describe("parseVoiceText dengan barang yang sudah ada", () => {
 })
 
 describe("parseVoiceText", () => {
+  it("mengabaikan kata kerja/pengantar yang diucapkan sebelum nama barang", () => {
+    expect(parseVoiceText("aku mau beli beras 5 kilo", products).items[0]).toMatchObject({
+      name: "Beras Ramos",
+      qty: 5,
+      unit: "kg",
+    })
+    expect(parseVoiceText("tolong catat 3 papan telur", products).items[0]).toMatchObject({
+      name: "Telur Ayam",
+      qty: 3,
+      unit: "papan",
+    })
+    expect(parseVoiceText("dibeli gula pasir 2 kg", products).items[0]).toMatchObject({
+      name: "Gula Pasir",
+      qty: 2,
+      unit: "kg",
+    })
+    expect(parseVoiceText("besok aku akan beli telur 1 papan", products).items[0]).toMatchObject({
+      name: "Telur Ayam",
+      qty: 1,
+      unit: "papan",
+    })
+    expect(parseVoiceText("mohon sekali catat 2 papan telur ayam", products).items[0]).toMatchObject({
+      name: "Telur Ayam",
+      qty: 2,
+      unit: "papan",
+    })
+    expect(parseVoiceText("terjual beras Ramos 10 kilo", products).items[0]).toMatchObject({
+      name: "Beras Ramos",
+      qty: 10,
+      unit: "kg",
+    })
+  })
+
+  it("toConfirmItems memberi nama barang bersih walau baris dari AI mengandung kata kerja", () => {
+    // AI yang "bandel" mengembalikan nama dengan kata pengantar — harus
+    // dibungkus dengan pembersih sebelum dibandingkan ke katalog.
+    const dirty = [
+      { name: "Terjual Beras Ramos", qty: 5, unit: "kg", confidence: 0.95 },
+      { name: "Aku catat Teh Botol", qty: 3, unit: "botol", confidence: 0.95 },
+      { name: "Membeli Gula Pasir", qty: 2, unit: "kg", confidence: 0.95 },
+    ]
+    for (const item of dirty) {
+      const confirmed = toConfirmItems([item], products, "sale")
+      expect(confirmed[0]?.name ?? "").not.toMatch(/terjual|aku catat|membeli/i)
+    }
+  })
+
   it("parses two items with their units", () => {
     const result = parseVoiceText("terjual beras 10 kilo dan telur 2 papan", products)
 

@@ -35,7 +35,7 @@ Tugas: ekstrak semua baris barang yang terlihat di nota.
 
 Aturan:
 - Hanya gunakan data yang terlihat di nota. Jangan mengarang barang, jumlah, atau harga.
-- name: nama barang, rapikan kapitalisasi. Jangan masukkan diskon, pajak, atau uang kembalian.
+- name: NAMA BARANG SAJA — huruf besar di awal, tanpa kata kerja/kata ganti/kata pengantar/partikel apapun (contoh salah: "Terjual Beras", "Beli minyak"). Contoh benar: "Beras Ramos", "Minyak Goreng". Jangan mengarang nama barang yang tidak tertulis di nota — nama bebas dari nota, tidak perlu cocok dengan database.
 - size: ukuran/varian kemasan yang tertera di baris barang ("1 Liter", "500 g", "700 ml"). Kalau ada DUA angka+satuan di satu baris (mis. "Minyak Goreng 2 L x 20"), angka SATU adalah size dan yang TERAKHIR adalah qty. Kalau tidak ada ukuran, isi null.
 - brand: merek barang ("Bimoli", "Wings", "Sederhana"). Kalau tertulis, isi. Kalau tidak ada, isi null. Barang dengan nama + ukuran sama tapi merek berbeda adalah PRODUK BERBEDA dengan harga berbeda — jangan disamakan.
 - qty: angka positif. Contoh "5 L" berarti qty 5 dan unit "liter".

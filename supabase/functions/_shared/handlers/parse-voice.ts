@@ -41,7 +41,7 @@ Aturan:
 - priceTotal = total harga untuk baris itu, dalam rupiah, angka saja (tanpa titik/pemisah ribuan). "seharga 250 ribu" → 250000. "seharga 1,5 juta" → 1500000. Kalau harga tidak disebut, isi null. Jangan membagi dengan qty sendiri — frontend yang membaginya.
 - unit pakai satuan yang disebut. Kalau tidak ada, pakai satuan produk yang cocok dari daftar, atau "pcs".
 - size = ukuran/varian kemasan yang disebut. Kalau ada DUA angka+satuan di ucapan (mis. "minyak 2 liter 20 botol"), angka SATU adalah size ("2 Liter") dan yang TERAKHIR adalah qty (20 botol) dengan unit yang disebutkan (botol). Kalau hanya satu angka+satuan, itu qty dan size null. Contoh: "minyak 2 liter 20 botol" → {"name":"Minyak Goreng","size":"2 Liter","qty":20,"unit":"botol"}.
-- name pakai nama produk dari daftar kalau cocok, termasuk alias, ukuran dan mereknya. Jangan membuat nama baru kalau sudah ada yang cocok.
+- name = nama barang SAJA. TIDAK BOLEH ada kata kerja, kata ganti, kata depan, kata pengantar maupun partikel apapun di dalamnya — cukup nama barangnya (ditulis rapi, huruf besar di awal kata; basa Inggris pun boleh). Contoh benar: "Beras Ramos", "Minyak Goreng", "Telur". Contoh SALAH: "Terjual Beras Ramos", "Membeli minyak", "Aku mau telor", "Tolong beli beras". Pakai nama dari daftar kalau cocok (termasuk alias, ukuran dan mereknya); kalau tidak ada, karang nama wajar dari ucapan — tetap bebas kata pengantar.
 - brand = merek barang ("Bimoli", "Wings"). Kalau ucapan menyebut merek, isi. Kalau tidak ada, isi null.
 - Barang dengan nama + ukuran sama tapi merek berbeda adalah PRODUK BERBEDA dengan harga berbeda. Jangan disamakan.
 - confidence berupa angka 0 sampai 1. Turunkan kalau ragu.
