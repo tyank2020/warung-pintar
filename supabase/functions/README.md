@@ -47,12 +47,22 @@ Output:
 
 ```json
 {
-  "items": [{ "name": "Beras Ramos", "qty": 10, "unit": "kg", "confidence": 0.95, "size": null }]
+  "items": [{ "name": "Beras Ramos", "qty": 10, "unit": "kg", "confidence": 0.95, "size": null, "brand": null, "priceTotal": null }]
 }
 ```
 
 `size` terisi kalau ucapan menyebut ukuran/varian ("minyak 2 liter 20 botol" →
 `{"name":"Minyak Goreng","size":"2 Liter","qty":20,"unit":"botol"}`), `null` kalau tidak.
+`brand` terisi kalau merek disebutkan ("Bimoli 2 liter 20 botol" → `"Bimoli"`), `null` kalau tidak.
+`priceTotal` terisi kalau harga baris disebutkan ("seharga 250 ribu" → `250000`), `null` kalau tidak.
+
+Ukuran vs jumlah ditentukan dari KELAS SATUAN — bukan urutan:
+
+- Satuan jual/wadah (botol, dus, pcs, bungkus, papan, sachet, karung, kaleng) = **qty**
+- Satuan ukuran (kg, gram, liter, ml, ons) = **size**
+
+Contoh: "10 botol air mineral 1 liter seharga 250 ribu" →
+`{"name":"Air Mineral","size":"1 Liter","qty":10,"unit":"botol","priceTotal":250000,"confidence":0.95}`
 
 ### `scan-receipt`
 

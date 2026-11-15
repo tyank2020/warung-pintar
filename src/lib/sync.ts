@@ -51,7 +51,7 @@ let state: SyncState = {
   lastSyncAt: null,
   lastError: null,
   autoSync: true,
-  status: "online",
+  status: typeof navigator !== "undefined" && !navigator.onLine ? "offline" : "online",
 }
 
 function emit() {

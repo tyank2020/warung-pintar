@@ -71,6 +71,13 @@ export interface VoiceItem {
   size?: string | null
   /** Merek barang ("Bimoli"); kosong = tanpa merek. */
   brand?: string | null
+  /**
+   * Total harga baris ini ("seharga 250 ribu" → 250000), rupiah.
+   * Kosong kalau tidak disebutkan.
+   */
+  priceTotal?: number | null
+  /** Harga per satuan kalau disebutkan ("per 25 ribu", "@ 25 ribu"). */
+  unitPrice?: number | null
 }
 
 export interface VoiceParseResult {

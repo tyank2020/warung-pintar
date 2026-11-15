@@ -58,7 +58,15 @@ describe("parseVoiceText dengan barang yang sudah ada", () => {
   it("'saya membeli 10 air mineral' membaca Air Mineral, bukan barang baru", () => {
     const result = parseVoiceText("saya membeli 10 air mineral", products)
     expect(result.items).toEqual([
-      { name: "Air Mineral", qty: 10, unit: "botol", confidence: expect.any(Number), size: null },
+      {
+        name: "Air Mineral",
+        qty: 10,
+        unit: "botol",
+        confidence: expect.any(Number),
+        size: null,
+        priceTotal: null,
+        unitPrice: null,
+      },
     ])
   })
 
@@ -354,6 +362,87 @@ const sizeProducts: Product[] = [
 ]
 
 describe("varian ukuran (size)", () => {
+  it("contoh produk: dua varian Air Mineral, satu kalimat dengan harga seharga", () => {
+    const airMineralProducts: Product[] = [
+      {
+        id: "p-air-1l",
+        name: "Air Mineral",
+        unit: "botol",
+        stock: 50,
+        min_stock: 10,
+        buy_price: 25000,
+        sell_price: 30000,
+        aliases: ["aqua"],
+        size: "1 Liter",
+      },
+      {
+        id: "p-air-500ml",
+        name: "Air Mineral",
+        unit: "botol",
+        stock: 50,
+        min_stock: 10,
+        buy_price: 20000,
+        sell_price: 25000,
+        aliases: ["aqua"],
+        size: "500 ml",
+      },
+    ]
+
+    const result = parseVoiceText(
+      "saya membeli 10 botol air mineral 1 liter seharga 250 ribu dan 5 botol air mineral 500 ml seharga 100 ribu",
+      airMineralProducts,
+    )
+
+    expect(result.items).toHaveLength(2)
+    expect(result.items[0]).toMatchObject({
+      name: "Air Mineral",
+      qty: 10,
+      unit: "botol",
+      size: "1 liter",
+      priceTotal: 250000,
+    })
+    expect(result.items[1]).toMatchObject({
+      name: "Air Mineral",
+      qty: 5,
+      unit: "botol",
+      size: "500 ml",
+      priceTotal: 100000,
+    })
+
+    // Varian dipilih berdasarkan ukuran, dan harga yang diucapkan menang
+    // atas katalog.
+    const confirmed = toConfirmItems(result.items, airMineralProducts, "purchase")
+    expect(confirmed[0]).toMatchObject({ productId: "p-air-1l", unitPrice: 25000 })
+    expect(confirmed[1]).toMatchObject({ productId: "p-air-500ml", unitPrice: 20000 })
+  })
+
+  it("mendukung harga per satuan ('per 25 ribu')", () => {
+    const items = parseVoiceText("terjual beras 2 kg per 15 ribu", products)
+    expect(items.items[0]).toMatchObject({ name: "Beras Ramos", qty: 2, unit: "kg" })
+    const confirmed = toConfirmItems(items.items, products, "sale")
+    expect(confirmed[0]?.unitPrice).toBe(15000)
+  })
+
+  it("menangani urutan 'jumlah dulu baru ukuran' dan sebaliknya", () => {
+    const airProds: Product[] = [
+      {
+        id: "p-a1",
+        name: "Air Mineral",
+        unit: "botol",
+        stock: 10,
+        min_stock: 2,
+        buy_price: 1000,
+        sell_price: 2000,
+        aliases: ["air"],
+        size: "1 Liter",
+      },
+    ]
+    const qtyFirst = parseVoiceText("terjual 10 botol air mineral 1 liter", airProds)
+    const sizeFirst = parseVoiceText("terjual air mineral 1 liter 10 botol", airProds)
+    expect(qtyFirst.items[0]).toMatchObject({ qty: 10, unit: "botol", size: "1 liter" })
+    expect(sizeFirst.items[0]).toMatchObject({ qty: 10, unit: "botol", size: "1 liter" })
+  })
+
   it("'minyak 2 liter 20 botol' membaca ukuran sebagai size, bukan jumlah", () => {
     const result = parseVoiceText("terjual minyak 2 liter 20 botol", sizeProducts)
     expect(result.items[0]).toMatchObject({

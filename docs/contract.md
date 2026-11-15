@@ -127,7 +127,7 @@ Output:
 ```json
 {
   "items": [
-    { "name": "Beras Ramos", "qty": 10, "unit": "kg", "confidence": 0.95, "size": null }
+    { "name": "Beras Ramos", "qty": 10, "unit": "kg", "confidence": 0.95, "size": null, "brand": null, "priceTotal": null }
   ],
   "debtor": null
 }
@@ -136,6 +136,14 @@ Output:
 `size` berisi ukuran/varian kemasan ("2 Liter") kalau ucapan menyebut dua angka
 ("minyak 2 liter 20 botol" → size `2 Liter`, qty `20`, unit `botol`); `null`
 bila tidak, atau hanya satu angka+satuan (diperlakukan sebagai qty, perilaku lama).
+
+`brand` berisi merek barang kalau disebutkan; `null` kalau tidak. Dua barang
+dengan nama + ukuran sama tapi merek berbeda adalah produk berbeda.
+
+`priceTotal` berisi total rupiah baris bila diucapkan ("seharga 250 ribu" →
+`250000`), atau `null` kalau tidak. Penentuan ukuran vs jumlah dilakukan dari
+kelas satuan (botol/dus/pcs = jumlah; kg/liter = ukuran), bukan urutan —
+"10 botol air mineral 1 liter" berarti qty 10 botol, size 1 Liter.
 
 `debtor` berisi nama orang kalau ucapan menandakan barang disimpan dulu
 ("simpen dulu buat Pak Yono") — hasilnya dicatat ke buku utang `debts`, bukan

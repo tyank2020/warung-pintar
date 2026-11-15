@@ -85,16 +85,19 @@ export function AppHeader({
                 ? "Sinkronisasi terakhir gagal — klik untuk coba lagi"
                 : "Tersinkronisasi"
         }
-        aria-label="Status sinkronisasi"
+        aria-label={`Status koneksi: ${
+          sync.status === "offline"
+            ? "Offline"
+            : sync.status === "online"
+              ? "Online"
+              : sync.status === "syncing"
+                ? "Menyinkronkan"
+                : sync.status === "failed"
+                  ? "Gagal sinkronisasi"
+                  : `${sync.pending} perubahan menunggu sinkronisasi`
+        }`}
       >
         <span className="sync-dot" aria-hidden="true" />
-        <span className="sync-pill-text">
-          {sync.status === "offline" && "Offline"}
-          {sync.status === "syncing" && "Menyinkronkan…"}
-          {sync.status === "pending" && `${sync.pending} menunggu`}
-          {sync.status === "failed" && "Gagal sync"}
-          {sync.status === "online" && "Online"}
-        </span>
       </button>
       <div className="header-actions">
         <button className="notification" aria-label="Asisten warung" onClick={onChat}>

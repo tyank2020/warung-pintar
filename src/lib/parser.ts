@@ -386,6 +386,67 @@ interface RawItem {
   product: Product | null
   /** Ukuran/varian yang disebut, mis. "2 Liter" ("minyak 2 liter 20 botol"). */
   size: string | null
+  /** Total harga untuk baris ini ("seharga 250 ribu"), rupiah. */
+  priceTotal: number | null
+  /** Harga SATUAN ("per 25 ribu", "@ 25 ribu"), rupiah. */
+  unitPrice: number | null
+}
+
+interface PriceMatch {
+  priceTotal: number | null
+  unitPrice: number | null
+  /** Teks tanpa penyebutan harga — siap diambil nama barangnya. */
+  remainder: string
+}
+
+/** Angka yang ditulis "250.000" (format titik ribuan) atau "250 ribu". */
+function parsePriceToken(base: string | undefined, word: string | undefined): number | null {
+  const cleaned = (base ?? "").trim()
+  if (!cleaned) return null
+  // "250.000" / "1.500.000" — titik ribuan, tanpa kata pengali.
+  if (/^\d{1,3}(\.\d{3})+$/.test(cleaned) && !word) {
+    return Number(cleaned.replace(/\./g, ""))
+  }
+  const parsed = parseNumber(cleaned)
+  if (parsed === null) return null
+  const multiplier = word ? (PRICE_MULTIPLIERS[word.toLowerCase()] ?? 1) : 1
+  return Math.round(parsed * multiplier)
+}
+
+/**
+ * Tarik penyebutan harga dari baris ucapan, tanpa menyentuh angka
+ * jumlah/ukuran karena keyword-nya wajib ada:
+ *
+ * - "per 25 ribu" / "@ 25 ribu" → harga per satuan (25.000/botol)
+ * - "seharga 250 ribu" / "total 250 ribu" / "sebesar 1,5 juta"
+ *   → total harga baris (dibagi qty jadi harga satuan)
+ */
+function extractPrice(text: string): PriceMatch {
+  const perMatch = text.match(
+    /(?:^|\s)(?:per|@)\s*(?:rp\.?\s*)?(\d{1,3}(?:\.\d{3})+|\d+(?:[.,]\d+)?)\s*(ribu|rb|ribuan|juta)?\b/i,
+  )
+  if (perMatch) {
+    const unitPrice = parsePriceToken(perMatch[1], perMatch[2])
+    return {
+      priceTotal: null,
+      unitPrice,
+      remainder: text.replace(perMatch[0], " "),
+    }
+  }
+
+  const totalMatch = text.match(
+    /(?:^|\s)(?:seharga|total|sebesar|sejumlah)\s*(?:rp\.?\s*)?(\d{1,3}(?:\.\d{3})+|\d+(?:[.,]\d+)?)\s*(ribu|rb|ribuan|juta)?\b/i,
+  )
+  if (totalMatch) {
+    const priceTotal = parsePriceToken(totalMatch[1], totalMatch[2])
+    return {
+      priceTotal,
+      unitPrice: null,
+      remainder: text.replace(totalMatch[0], " "),
+    }
+  }
+
+  return { priceTotal: null, unitPrice: null, remainder: text }
 }
 
 interface QtyUnitSize {
@@ -398,20 +459,53 @@ interface QtyUnitSize {
 
 /**
  * Pisahkan jumlah + satuan dari nama barang, dan kenali dua pasangan angka:
- * yang pertama adalah UKURAN/varian, yang terakhir adalah QTY.
+ * satu adalah UKURAN/varian, satu lagi adalah QTY. Penentuan SIA PUNYA peran
+ * ditentukan dari KELAS SATUAN — bukan urutan:
  *
- * - "minyak 2 liter 20 botol" → size "2 liter", qty 20 botol
- * - "beras 5 kg 10 karung"   → size "5 kg", qty 10 karung
- * - "beras 10 kilo"          → qty 10 kg (tanpa ukuran)
- * - "telur 2 papan"          → qty 2 papan (tanpa ukuran)
+ * - Satuan isi/berat/volume (kg, gram, liter, ml, ons) → itu UKURAN/varian.
+ * - Satuan jual/wadah (botol, dus, pcs, bungkus, papan, sachet, karung,
+ *   kaleng, batang, karton) → itu QTY.
+ *
+ * - "minyak 2 liter 20 botol"        → size "2 liter", qty 20 botol
+ * - "10 botol air mineral 1 liter"   → size "1 liter", qty 10 botol
+ * - "air mineral 1 liter 10 botol"   → size "1 liter", qty 10 botol
+ * - "beras 5 kg 10 karung"           → size "5 kg", qty 10 karung
+ * - "beras 10 kilo"                  → qty 10 kg (tanpa ukuran)
+ * - "telur 2 papan"                  → qty 2 papan (tanpa ukuran)
  */
+const COUNT_UNITS = new Set([
+  "botol",
+  "karton",
+  "karung",
+  "kaleng",
+  "batang",
+  "papan",
+  "sachet",
+  "pcs",
+  "dus",
+  "bungkus",
+  "pak",
+  "pack",
+])
+const MEASURE_UNITS = new Set(["kg", "gram", "liter", "ml", "ons"])
+
 function extractQtyUnitSize(text: string): QtyUnitSize {
   const pairPattern = new RegExp(`(${NUMBER_PATTERN})\\s*(${UNIT_PATTERN})\\b`, "gi")
   const pairs = [...text.matchAll(pairPattern)]
 
   if (pairs.length >= 2) {
-    const sizePair = pairs[0]!
-    const qtyPair = pairs[pairs.length - 1]!
+    const classify = (pair: RegExpMatchArray): "measure" | "count" | "other" => {
+      const unit = normalizeUnit(pair[2] ?? "")
+      if (MEASURE_UNITS.has(unit)) return "measure"
+      if (COUNT_UNITS.has(unit)) return "count"
+      return "other"
+    }
+    // Cari pasangan satuan hitung (botol/dus/pcs...) → itu qty; pasangan
+    // satuan ukuran (kg/liter/ml...) → itu ukuran.
+    const countPair = pairs.find((pair) => classify(pair) === "count")
+    const measurePair = pairs.find((pair) => classify(pair) === "measure")
+    const sizePair = measurePair ?? pairs[0]!
+    const qtyPair = countPair ?? pairs[pairs.length - 1]!
     const sizeQty = parseNumber(sizePair[1])
     const qty = parseNumber(qtyPair[1])
     const size =
@@ -452,18 +546,21 @@ function parseSegment(segment: string, products: Product[]): RawItem | null {
   if (!text) return null
 
   // Examples handled: "beras 10 kilo", "10 kg beras", "telur 2 papan",
-  // "minyak 2 liter 20 botol".
-  const extracted = extractQtyUnitSize(text)
+  // "minyak 2 liter 20 botol", "10 botol air mineral 1 liter seharga 250 ribu".
+  const priced = extractPrice(text)
+  const extracted = extractQtyUnitSize(priced.remainder)
   const qty = extracted.qty
   let unit = extracted.unit
   const size = extracted.size
   let name = extracted.name
+  const priceTotal = priced.priceTotal
+  const unitPrice = priced.unitPrice
 
   name = cleanName(name)
   if (!name || qty === null || qty <= 0) return null
 
-  // Ignore prices such as "10 ribu" or "Rp 10.000".
-  if (/\b(rp|ribu|ribuan|juta)\b/.test(text) && extracted.unit === "") return null
+  // Baris hanya berisi penyebutan harga tanpa barang → abaikan.
+  if (/\b(rp|ribu|ribuan|juta)\b/.test(priced.remainder) && extracted.unit === "") return null
 
   const product = findProduct(products, name, size)
   if (product) {
@@ -476,7 +573,7 @@ function parseSegment(segment: string, products: Product[]): RawItem | null {
   if (extracted.unit === "") confidence -= 0.1
   confidence = Math.max(0.25, Math.min(0.99, confidence))
 
-  return { name, qty, unit: unit || "pcs", confidence, product, size }
+  return { name, qty, unit: unit || "pcs", confidence, product, size, priceTotal, unitPrice }
 }
 
 const DECIMAL_TOKEN = "koma"
@@ -528,6 +625,8 @@ export function parseVoiceText(transcript: string, products: Product[]): VoicePa
           confidence: 0.5,
           product,
           size: product.size ?? null,
+          priceTotal: null,
+          unitPrice: null,
         })
       }
     }
@@ -548,6 +647,8 @@ export function parseVoiceText(transcript: string, products: Product[]): VoicePa
         unit: item.unit,
         confidence: item.confidence,
         size: item.size,
+        priceTotal: item.priceTotal,
+        unitPrice: item.unitPrice,
       })
     }
   }
@@ -629,6 +730,16 @@ export function toConfirmItems(
     let unit = product?.unit ?? normalizeUnit(item.unit)
     const size = item.size ?? product?.size ?? null
     const brand = item.brand ?? product?.brand ?? null
+    // Harga yang diucapkan mengalahkan katalog:
+    //   "per 25 ribu" / "@ 25 ribu" (unitPrice) >
+    //   "seharga 250 ribu" untuk 10 botol (25.000/botol, dari priceTotal) >
+    //   harga katalog terakhir.
+    const spokenUnitPrice =
+      item.unitPrice !== undefined && item.unitPrice !== null && item.unitPrice > 0
+        ? Math.round(item.unitPrice)
+        : item.priceTotal !== undefined && item.priceTotal !== null && item.priceTotal > 0 && qty > 0
+          ? Math.round(item.priceTotal / qty)
+          : null
 
     if (product) {
       // "500 gram" untuk barang per kg menjadi 0,5 kg.
@@ -643,7 +754,9 @@ export function toConfirmItems(
       name: product?.name ?? item.name,
       qty,
       unit,
-      unitPrice: product ? (kind === "sale" ? product.sell_price : product.buy_price) : 0,
+      unitPrice:
+        spokenUnitPrice ??
+        (product ? (kind === "sale" ? product.sell_price : product.buy_price) : 0),
       confidence: item.confidence,
       isNew: !product,
       size,

@@ -86,7 +86,10 @@
 
 @layer base {
   body {
-    background: var(--cream);
+    background:
+      radial-gradient(ellipse at 8% 0%, rgba(47, 98, 232, 0.1), transparent 38rem),
+      radial-gradient(ellipse at 100% 12%, rgba(139, 178, 255, 0.13), transparent 34rem),
+      linear-gradient(135deg, #f8fbff 0%, var(--cream) 58%, #edf4ff 100%);
     color: var(--ink);
   }
 
@@ -1392,7 +1395,18 @@
 }
 
 body {
-  background: var(--cream);
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(47, 98, 232, 0.18), transparent 36rem),
+    radial-gradient(ellipse at 94% 18%, rgba(0, 166, 251, 0.14), transparent 32rem),
+    radial-gradient(ellipse at 72% 100%, rgba(139, 178, 255, 0.18), transparent 42rem),
+    repeating-linear-gradient(
+      135deg,
+      rgba(47, 98, 232, 0.018) 0,
+      rgba(47, 98, 232, 0.018) 1px,
+      transparent 1px,
+      transparent 18px
+    ),
+    linear-gradient(135deg, #f8fbff 0%, #eaf2ff 48%, #f6faff 100%);
   color: var(--ink);
 }
 
