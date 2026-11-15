@@ -87,7 +87,9 @@
     text-rendering: optimizeLegibility;
   }
   button,
-  input {
+  input,
+  select,
+  textarea {
     font: inherit;
   }
   button {
@@ -6656,20 +6658,40 @@ i.pulse {
 }
 
 /* ---------- Harga pasar ---------- */
+.market-page {
+  max-width: 1160px;
+  margin: 0 auto;
+  width: 100%;
+}
 .market-hero {
-  display: flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
+  gap: 14px;
+  padding: 18px 20px;
+  margin: 18px 0;
   border: 1px solid var(--brand-soft);
-  border-radius: 14px;
-  background: var(--brand-light);
-  color: #0d3a56;
-  font-size: 12px;
-  line-height: 1.55;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(0, 166, 251, 0.18), transparent 45%),
+    linear-gradient(135deg, #f3faff 0%, var(--brand-light) 55%, #e6edff 100%);
+  color: var(--ink);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.market-hero > svg {
+  width: 42px;
+  height: 42px;
+  padding: 9px;
+  color: #ffffff;
+  background: var(--brand-solid);
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgba(0, 100, 148, 0.28);
 }
 .market-hero p {
   margin: 0;
+  max-width: 74ch;
 }
 .market-report {
   display: grid;
@@ -6678,14 +6700,16 @@ i.pulse {
   border: 1px solid var(--line);
   border-radius: 16px;
   background: var(--surface);
+  box-shadow: 0 1px 2px rgba(5, 25, 35, 0.04);
 }
 .market-report h2 {
   margin: 0;
   font-size: 15px;
+  letter-spacing: -0.15px;
 }
 .market-form {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr auto;
+  grid-template-columns: minmax(0, 1.25fr) minmax(120px, 1fr) minmax(120px, 1fr) auto;
   gap: 10px;
   align-items: end;
 }
@@ -6695,16 +6719,39 @@ i.pulse {
 @media (max-width: 560px) {
   .market-form { grid-template-columns: 1fr; }
 }
+.market-form .primary-action {
+  height: 46px;
+}
 .market-list {
   display: grid;
   gap: 12px;
+  margin-top: 14px;
+}
+.market-card {
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(5, 25, 35, 0.04);
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+.market-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--brand-mid);
+  box-shadow: 0 12px 26px rgba(6, 32, 48, 0.1);
 }
 .market-card-head {
   display: flex;
   justify-content: space-between;
   gap: 12px;
   align-items: flex-start;
-  margin-bottom: 10px;
+}
+.market-card-head strong {
+  display: block;
+  font-size: 13.5px;
+  letter-spacing: -0.1px;
 }
 .market-card-head small {
   color: var(--muted);
@@ -6733,30 +6780,39 @@ i.pulse {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  margin: 10px 0;
+  margin: 4px 0;
 }
 @media (max-width: 560px) {
   .market-compare { grid-template-columns: repeat(2, 1fr); }
 }
 .market-compare > div {
   display: grid;
-  gap: 1px;
-  padding: 9px 10px;
-  border-radius: 10px;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
   background: var(--surface-2);
 }
 .market-compare small {
   font-size: 9.5px;
+  letter-spacing: 0.4px;
+  font-weight: 700;
+  text-transform: uppercase;
   color: var(--muted);
 }
 .market-compare strong {
-  font-size: 13px;
+  font-size: 15px;
+  letter-spacing: -0.25px;
 }
+.market-cell.up strong { color: var(--sukses); }
+.market-cell.down strong { color: var(--danger); }
 .market-message {
-  margin: 6px 0 10px;
+  margin: 6px 0 4px;
   font-size: 12px;
   line-height: 1.6;
   color: var(--muted);
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
 }
 
 /* ---------- Kartu stok (ProductSheet) ---------- */
@@ -8734,4 +8790,29 @@ i.pulse {
 }
 .sort-reset:hover {
   background: var(--brand-soft);
+}
+
+/* Selisih hasil hitung fisik di kartu opname. */
+.count-delta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+}
+.count-delta.plus {
+  color: var(--sukses);
+  background: var(--sukses-light);
+  border: 1px solid #bfe3cd;
+}
+.count-delta.minus {
+  color: var(--danger);
+  background: var(--danger-light);
+  border: 1px solid #f0b8ae;
 }

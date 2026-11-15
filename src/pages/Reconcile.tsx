@@ -111,7 +111,7 @@ export function Reconcile() {
           <Icon name="check" size={26} />
           <strong>Belum ada selisih</strong>
           <span>
-            Catatan dan gudang masih sinkron. Klik **Hitung stok** untuk menghitung fisik lalu
+            Catatan dan gudang masih sinkron. Klik <strong>Hitung stok</strong> untuk menghitung fisik lalu
             membandingkannya dengan catatan.
           </span>
         </section>

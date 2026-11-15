@@ -165,22 +165,26 @@ export function MarketPrices() {
                 </span>
               </div>
               <div className="market-compare">
-                <div>
+                <div className="market-cell">
                   <small>Harga Anda</small>
                   <strong>{rupiah(item.myPrice)}</strong>
                 </div>
-                <div>
+                <div className="market-cell">
                   <small>Harga pasar</small>
                   <strong>{rupiah(item.marketPrice)}</strong>
                 </div>
-                <div>
+                <div
+                  className={`market-cell ${
+                    item.advice.gap > 0 ? "up" : item.advice.gap < 0 ? "down" : ""
+                  }`}
+                >
                   <small>Selisih</small>
                   <strong>
                     {item.advice.gap > 0 ? "+" : ""}
                     {rupiah(item.advice.gap)}
                   </strong>
                 </div>
-                <div>
+                <div className="market-cell">
                   <small>Margin sekarang</small>
                   <strong>{numberID(item.advice.marginBefore, 1)}%</strong>
                 </div>
