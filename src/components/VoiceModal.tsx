@@ -722,10 +722,11 @@ export function VoiceModal({
           {!online && (
             <div className="data-banner warning" role="status">
               <div>
-                <strong>Anda sedang offline</strong>
+                <strong>Koneksi internet tidak terdeteksi</strong>
                 <span>
-                  Mikrofon butuh internet untuk mengenali suara. Ketik manual di bawah,
-                  atau coba lagi saat internet kembali.
+                  Beberapa browser/lingkungan (WebView, dalam aplikasi media sosial) bisa
+                  melaporkan offline padahal koneksi sebenarnya ada. Coba tetap tekan mikrofon —
+                  kalau gagal, ketik manual di bawah.
                 </span>
               </div>
             </div>
@@ -748,17 +749,11 @@ export function VoiceModal({
             className={`mic-button ${step === "listening" ? "listening" : ""}`}
             onClick={step === "listening" ? stopListening : startListening}
             aria-label={step === "listening" ? "Berhenti merekam" : "Mulai merekam suara"}
-            disabled={!online}
-            title={!online ? "Mikrofon butuh internet" : undefined}
           >
             <Icon name={step === "listening" ? "close" : "mic"} size={36} />
           </button>
           <span className="mic-hint">
-            {!online
-              ? "Offline — ketik manual di bawah"
-              : step === "listening"
-                ? "Tekan untuk berhenti"
-                : "Tekan mikrofon lalu bicara"}
+            {step === "listening" ? "Tekan untuk berhenti" : "Tekan mikrofon lalu bicara"}
           </span>
 
           {(transcript || interim) && (
