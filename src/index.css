@@ -4912,6 +4912,14 @@ header {
   justify-content: space-between;
   gap: 10px;
 }
+/* Tombol X di dalam mobile-menu adalah bagian dari baris flex, bukan
+   sudut kanan atas — kembalikan ke in-flow. */
+.mobile-menu-head .modal-close {
+  position: static;
+  top: auto;
+  right: auto;
+  flex: 0 0 auto;
+}
 .mobile-menu-title {
   display: flex;
   align-items: center;
