@@ -130,6 +130,60 @@ describe("parseVoiceText", () => {
     }
   })
 
+  it("kasus nyata: 'iyan membeli 10 botol air mineral ukuran 1 liter harga Rp100.000' — harga terisi dari ucapan", () => {
+    const result = parseVoiceText(
+      "iyan membeli 10 botol air mineral ukuran 1 liter harga Rp100.000",
+      [],
+    )
+    expect(result.items).toHaveLength(1)
+    expect(result.items[0]).toMatchObject({
+      qty: 10,
+      unit: "botol",
+      size: "1 liter",
+      priceTotal: 100000,
+    })
+    // Nama tidak boleh mengandung kata pengantar dan simbol harga.
+    expect(result.items[0].name ?? "").not.toMatch(/ukuran|harga|rp100/i)
+    const confirmed = toConfirmItems(result.items, [], "purchase")
+    expect(confirmed[0]).toMatchObject({
+      isNew: true,
+      unitPrice: 10000,
+      size: "1 liter",
+    })
+  })
+
+  it("'saya membeli 10 botol air mineral 1 liter seharga 250 ribu' berperilaku sama pada ekstraksi besar", () => {
+    const airmineralProducts: Product[] = [
+      {
+        id: "p-air1l",
+        name: "Air Mineral",
+        unit: "botol",
+        stock: 0,
+        min_stock: 0,
+        buy_price: 2500,
+        sell_price: 4000,
+        aliases: ["air"],
+        size: "1 Liter",
+      },
+    ]
+    const result = parseVoiceText(
+      "saya membeli 10 botol air mineral 1 liter seharga 250 ribu",
+      airmineralProducts,
+    )
+    expect(result.items[0]).toMatchObject({
+      qty: 10,
+      unit: "botol",
+      size: "1 liter",
+      priceTotal: 250000,
+    })
+    const confirmed = toConfirmItems(result.items, airmineralProducts, "purchase")
+    expect(confirmed[0]).toMatchObject({
+      productId: "p-air1l",
+      unitPrice: 25000,
+      size: "1 liter",
+    })
+  })
+
   it("parses two items with their units", () => {
     const result = parseVoiceText("terjual beras 10 kilo dan telur 2 papan", products)
 

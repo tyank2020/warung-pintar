@@ -372,6 +372,7 @@ const FILLER_WORDS = new Set([
   "akan",
   "telah",
   "sedang",
+  "ukuran",
   "masih",
   "pernah",
   "supaya",
@@ -692,7 +693,7 @@ function extractPrice(text: string): PriceMatch {
   }
 
   const totalMatch = text.match(
-    /(?:^|\s)(?:seharga|total|sebesar|sejumlah)\s*(?:rp\.?\s*)?(\d{1,3}(?:\.\d{3})+|\d+(?:[.,]\d+)?)\s*(ribu|rb|ribuan|juta)?\b/i,
+    /(?:^|\s)(?:seharga|total|sebesar|sejumlah|harga)\s*(?:rp\.?\s*)?(\d{1,3}(?:\.\d{3})+|\d+(?:[.,]\d+)?)\s*(ribu|rb|ribuan|juta)?\b/i,
   )
   if (totalMatch) {
     const priceTotal = parsePriceToken(totalMatch[1], totalMatch[2])

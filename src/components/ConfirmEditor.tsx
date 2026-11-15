@@ -282,7 +282,8 @@ export function confirmIsValid(
 
     if (item.isNew) {
       // Utang boleh memakai nama bebas (barang belum terdaftar) selama
-      // namanya jelas. Produk baru yang tersimpan tetap hanya untuk pembelian.
+      // namanya jelas. Produk baru yang tersimpan tetap hanya untuk pembelian
+      // — dan harga modal WAJIB diisi supaya perhitungan laba kotor akurat.
       if (mode === "utang") {
         if (!item.name.trim()) return false
         continue
