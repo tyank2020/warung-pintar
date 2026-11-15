@@ -7180,6 +7180,12 @@ i.pulse {
   padding: 16px 18px;
   border-bottom: 1px solid var(--line);
 }
+.chat-head .modal-close {
+  position: static;
+  top: auto;
+  right: auto;
+  flex: 0 0 auto;
+}
 .chat-head strong {
   display: block;
   font-size: 15px;
